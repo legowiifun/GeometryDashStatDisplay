@@ -1,3 +1,4 @@
+#ifdef GEODE_IS_WINDOWS
 #include <geode/modify/PauseLayer.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/ui/GeodeUI.hpp>
@@ -22,3 +23,4 @@ class $modify(StatDisplaySettingsLayer, PauseLayer) {
 		geode::openSettingsPopup(Mod::get());
 	}
 };
+#endif
