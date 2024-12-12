@@ -1,0 +1,119 @@
+{
+	"geode": "4.0.1",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "legowiifun.stat_display",
+	"name": "Stat Display",
+	"version": "v1.0.0",
+	"developer": "legowiifun",
+	"description": "Display stats while playing levels",
+	"settings": {
+		"enableLogs": {
+			"name": "Enable debug Logs",
+			"description": "Enables some debug logs created for testing.",
+			"type": "bool",
+			"default": false
+		},
+		"position": {
+			"name": "Position",
+			"description": "Where do you want the nodes to appear?",
+			"type": "string",
+			"one-of": [ "top-left", "top-right", "bottom-left", "bottom-right" ],
+			"default": "top-left"
+		},
+		"separator": {
+			"type": "title",
+			"name": "Types of stats to display"
+		},
+		"displayStars": {
+			"name": "Display Stars",
+			"description": "When do you want stars to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing rated classic levels", "always" ],
+			"default": "when playing rated classic levels"
+		},
+		"displayOnlineLevels": {
+			"name": "Display Online Levels",
+			"description": "When do you want the number of completed online levels to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
+		},
+		"displayDemons": {
+			"name": "Display your demon count",
+			"description": "When do you want your completed demon count to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing demon levels", "always" ],
+			"default": "when playing demon levels"
+		},
+		"displayLiked": {
+			"name": "Display Liked Levels",
+			"description": "When do you want the number of liked levels to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
+		},
+		"displayRated": {
+			"name": "Display Rated Levels",
+			"description": "When do you want the number of rated levels to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
+		},
+		"displayCoins": {
+			"name": "Display User Coins",
+			"description": "When do you want user coins to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing levels with rated coins", "always" ],
+			"default": "when playing levels with rated coins"
+		},
+		"displayManaOrbs": {
+			"name": "Display Mana Orbs",
+			"description": "When do you want mana orbs to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing rated levels", "always" ],
+			"default": "never"
+		},
+		"displayMoons": {
+			"name": "Display Moons",
+			"description": "When do you want moons to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing rated platformer levels", "always" ],
+			"default": "when playing rated platformer levels"
+		},
+		"displayLists": {
+			"name": "Display List Rewards",
+			"description": "When do you want list rewards to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
+		},
+		"displayInsanes": {
+			"name": "Display Insanes",
+			"description": "When do you want the number of insane levels you have completed to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "when playing insane difficulty levels", "always" ],
+			"default": "when playing insane difficulty levels"
+		}
+	},
+	"tags": ["Gameplay","Offline","Enhancement","Interface","Utility"],
+	"dependencies": [
+		{
+			"id": "geode.node-ids",
+			"version": ">=v1.17.0",
+			"importance": "required"
+		}
+	],
+	"links": {
+		"source": "github link"
+	},
+	"resources": {
+			"sprites": [
+					"resources/*.png"
+			]
+	}
+}
