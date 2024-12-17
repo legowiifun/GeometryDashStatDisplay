@@ -62,6 +62,8 @@ class $modify(GJBaseGameLayer) {
         GJBaseGameLayer::update(dt);
 
         //get settings
+        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
+        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
         std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
         std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
         std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
@@ -74,6 +76,12 @@ class $modify(GJBaseGameLayer) {
         std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
         
         // update stats
+        if (jumps == "always") {
+            updateText("jumps"_spr, "You currently have jumped ", stats::JUMPS, " times");
+        }
+        if (attempts == "always") {
+            updateText("attempts"_spr, "You currently have done ", stats::ATTEMPTS, " attempts");
+        }
         if (stars == "always" || (m_level->m_stars.value() != 0 && !m_level->isPlatformer() && stars == "when playing rated classic levels")) {
             updateText("stars"_spr, "You currently have ", stats::STARS, " stars");
         }
@@ -157,6 +165,8 @@ class $modify(UILayer) {
         if (!UILayer::init(layer)) return false;
 
         //get settings
+        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
+        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
         std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
         std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
         std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
@@ -168,6 +178,12 @@ class $modify(UILayer) {
         std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
         std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
 
+        if (jumps != "never") {
+            addLabel("jumps"_spr);
+        }
+        if (attempts != "never") {
+            addLabel("attempts"_spr);
+        }
         if (stars != "never") {
             addLabel("stars"_spr);
         }
