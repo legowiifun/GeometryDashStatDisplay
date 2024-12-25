@@ -8,13 +8,19 @@
 	},
 	"id": "legowiifun.stat_display",
 	"name": "Stat Display",
-	"version": "v1.0.1",
+	"version": "v1.0.2",
 	"developer": "legowiifun",
 	"description": "Display stats while playing levels",
 	"settings": {
 		"enableLogs": {
 			"name": "Enable debug Logs",
 			"description": "Enables some debug logs created for testing.",
+			"type": "bool",
+			"default": false
+		},
+		"showPause": {
+			"name": "Add a button to the pause menu",
+			"description": "Adds a button to the pause menu to control the mod settings",
 			"type": "bool",
 			"default": false
 		},
@@ -28,6 +34,20 @@
 		"separator": {
 			"type": "title",
 			"name": "Types of stats to display"
+		},
+		"displayJumps": {
+			"name": "Display how many jumps you have done",
+			"description": "When do you want your jump count to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
+		},
+		"displayAttempts": {
+			"name": "Display total attempts",
+			"description": "When do you want your attempt count to display on the screen?",
+			"type": "string",
+			"one-of": [ "never", "always" ],
+			"default": "never"
 		},
 		"displayStars": {
 			"name": "Display Stars",

@@ -1,5 +1,4 @@
-#ifdef GEODE_IS_WINDOWS
-#include <geode/modify/PauseLayer.hpp>
+#include <Geode/modify/PauseLayer.hpp>
 #include <Geode/Geode.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 /**
@@ -10,7 +9,8 @@ class $modify(StatDisplaySettingsLayer, PauseLayer) {
 	// add the settings button to the pause menu
 	void customSetup() {
 		PauseLayer::customSetup();
-		if (auto menu = getChildByID("right-button-menu")) {
+		auto menu = getChildByID("right-button-menu");
+		if ((menu!=nullptr) && Mod::get()->template getSettingValue<bool>("showPause")) {
 			auto settingBtn = CCMenuItemSpriteExtra::create(
 				CircleButtonSprite::createWithSprite("SettingsIcon.png"_spr, 1.f, CircleBaseColor::Green, CircleBaseSize::Tiny),
 				this, menu_selector(StatDisplaySettingsLayer::onSetting)
@@ -23,4 +23,3 @@ class $modify(StatDisplaySettingsLayer, PauseLayer) {
 		geode::openSettingsPopup(Mod::get());
 	}
 };
-#endif
