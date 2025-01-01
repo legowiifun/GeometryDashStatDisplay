@@ -31,6 +31,12 @@
 			"one-of": [ "top-left", "top-right", "bottom-left", "bottom-right" ],
 			"default": "top-left"
 		},
+		"useImg": {
+			"name": "Use an image instead of text",
+			"description": "Do you want to use text, or an image to display the stats?",
+			"type": "bool",
+			"default": false
+		},
 		"separator": {
 			"type": "title",
 			"name": "Types of stats to display"
