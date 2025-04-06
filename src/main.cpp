@@ -5,10 +5,11 @@
 #include <Geode/modify/GameStatsManager.hpp>
 #include <Geode/modify/UILayer.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
+#include <Geode/modify/GJGameLevel.hpp>
 
-/**
- * Brings cocos2d and all Geode namespaces to the current scope.
- */
+ /**
+  * Brings cocos2d and all Geode namespaces to the current scope.
+  */
 using namespace geode::prelude;
 /**
 * Various stats tracked by getStat
@@ -40,18 +41,230 @@ enum class stats {
     LIKED_LEVELS, RATED_LEVELS, USER_COINS, DIAMONDS, MANA_ORBS, DAILY_LEVELS, TOTAL_ORBS = 22,
     MOONS = 28, DIAMOND_SHARDS, GAUNTLETS = 40, LIST_REWARDS, INSANES
 };
-class $modify(customUILayer, UILayer) {
-    struct Fields {
-        CCNode* node = nullptr;
-        CCLabelBMFont* text = nullptr;
-        CCSprite* img = nullptr;
-        int currentPos = 2;
-        bool activateStats[43];
-    };
-    // add a label with the given ID
-    void addLabel(std::string ID) {
+class statText:public CCNodeRGBA {
+public:
+    CCLabelBMFont* text = nullptr;
+    CCSprite* img = nullptr;
+    int currentPos;
+    static statText* create(std::string imgName = "") {
+        auto* ret = new (std::nothrow) statText;
+        if (ret && ret->init(imgName)) {
+            ret->autorelease();
+            return ret;
+        }
+        else {
+            delete ret;
+            return nullptr;
+        }
+    }
+    bool init(std::string imgName="") {
+        if (!CCNodeRGBA::init()) return false;
+        auto director = CCDirector::sharedDirector();
+        float screenTop = director->getScreenTop();
+        float screenBottom = director->getScreenBottom();
+        float screenLeft = director->getScreenLeft();
+        float screenRight = director->getScreenRight();
+        text = CCLabelBMFont::create("", "bigFont.fnt");
+        if (imgName != "") {
+            img = CCSprite::create(imgName.c_str());
+            img->setID("img");
+            img->setScale(0.3f);
+            this->addChild(img);
+        }
+        text->setID("text");
+        text->setScale(0.3f);
+        this->addChild(text);
+        text->setColor({ 255, 255, 255 });
+        text->setOpacity(64);
         std::string position = Mod::get()->template getSettingValue<std::string>("position");
+        if (position == "top-left") {
+            text->setPosition(5, (int)(screenTop - currentPos));
+            text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "bottom-left") {
+            text->setPosition(5, (int)(screenBottom + currentPos + 8));
+            text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "top-right") {
+            text->setPosition(screenRight - 5, (int)(screenTop - currentPos));
+            text->setAnchorPoint({ 1, 1 });
+        }
+        else {
+            text->setPosition(screenRight - 5, (int)(screenBottom + currentPos + 8));
+            text->setAnchorPoint({ 1, 1 });
+        }
+        currentPos = currentPos + 11;
+        
+        this->setLayout(
+            AxisLayout::create(Axis::Row)
+            ->setAutoScale(false)
+            ->setGap(2.f)
+            ->setAutoGrowAxis(true)
+            ->setGrowCrossAxis(false)
+            ->setCrossAxisOverflow(true)
+            ->setAxisAlignment(AxisAlignment::Start)
+            ->setAxisReverse(true)
+        );
+        this->getLayout()->ignoreInvisibleChildren(true);
+        return true;
+    }
+    void createImg(std::string name) {
+        img = CCSprite::create(name.c_str());
+        img->setID("img");
+    }
+};
+
+class allStats :public CCNodeRGBA {
+public:
+    statText* text = nullptr;
+    int currentPos = 2;
+    static allStats* create(GJGameLevel* level) {
+        auto* ret = new (std::nothrow) allStats;
+        if (ret && ret->init(level)) {
+            ret->autorelease();
+            return ret;
+        }
+        else {
+            delete ret;
+            return nullptr;
+        }
+    }
+    bool init(GJGameLevel* level) {
+        if (!CCNodeRGBA::init()) return false;
+        this->setID("stats"_spr);
+        //get settings
+        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
+        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
+        std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
+        std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
+        std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
+        std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
+        std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
+        std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
+        std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
+        std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
+        std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
+        std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
+
         bool img = Mod::get()->template getSettingValue<bool>("useImg");
+
+        if (jumps == "always") {
+            if (img) {
+                addLabel("jumps"_spr, "jumps.png"_spr);
+            }
+            else {
+                addLabel("jumps"_spr);
+            }
+        }
+        if (attempts == "always") {
+            if (img) {
+                addLabel("attempts"_spr, "attempts.png"_spr);
+            }
+            else {
+                addLabel("attempts"_spr);
+            }
+        }
+        if (stars == "always" || (level->m_stars.value() != 0 && !level->isPlatformer() && stars == "when playing rated classic levels")) {
+            if (img) {
+                addLabel("stars"_spr, "stars.png"_spr);
+            }
+            else {
+                addLabel("stars"_spr);
+            }
+        }
+        if (online == "always") {
+            if (img) {
+                addLabel("onlineLevels"_spr, "onlineLevels.png"_spr);
+            }
+            else {
+                addLabel("onlineLevels"_spr);
+            }
+        }
+        if (demons == "always" || (level->m_demon.value() == 1 && demons == "when playing demon levels")) {
+            if (img) {
+                addLabel("demons"_spr, "demons.png"_spr);
+            }
+            else {
+                addLabel("demons"_spr);
+            }
+        }
+        if (liked == "always") {
+            if (img) {
+                addLabel("liked"_spr, "liked.png"_spr);
+            }
+            else {
+                addLabel("liked"_spr);
+            }
+        }
+        if (rated == "always") {
+            if (img) {
+                addLabel("rated"_spr, "rated.png"_spr);
+            }
+            else {
+                addLabel("rated"_spr);
+            }
+        }
+        if (coins == "always" || (level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins")) {
+            if (img) {
+                addLabel("coins"_spr, "coins.png"_spr);
+            }
+            else {
+                addLabel("coins"_spr);
+            }
+        }
+        if (orbs == "always" || (level->m_stars != 0 && orbs == "when playing rated levels")) {
+            if (img) {
+                addLabel("orbs"_spr, "orbs.png"_spr);
+            }
+            else {
+                addLabel("orbs"_spr);
+            }
+        }
+        if (moons == "always" || (level->m_stars.value() != 0 && level->isPlatformer() && moons == "when playing rated platformer levels")) {
+            if (img) {
+                addLabel("moons"_spr, "moons.png"_spr);
+            }
+            else {
+                addLabel("moons"_spr);
+            }
+        }
+        if (lists == "always") {
+            if (img) {
+                addLabel("lists"_spr, "lists.png"_spr);
+            }
+            else {
+                addLabel("lists"_spr);
+            }
+        }
+        // Add extra checks for main insane levels
+        if (insanes == "always" || ((((level->m_stars.value() == 8 || level->m_stars.value() == 9) && level->m_creatorName != "")
+            || (level->m_creatorName == "" && level->m_stars.value() >= 10 && level->m_stars.value() < 14 && level->m_levelName != "Geometrical Dominator" && level->m_levelName != "Blast Processing"))
+            && insanes == "when playing insane difficulty levels")) {
+            if (img) {
+                addLabel("insanes"_spr, "insanes.png"_spr);
+            }
+            else {
+                addLabel("insanes"_spr);
+            }
+        }
+        this->setLayout(
+            AxisLayout::create(Axis::Column)
+            ->setAutoScale(false)
+            ->setGap(2.f)
+            ->setAutoGrowAxis(true)
+            ->setGrowCrossAxis(false)
+            ->setCrossAxisOverflow(true)
+            ->setAxisAlignment(AxisAlignment::Start)
+            ->setAxisReverse(true)
+        );
+        this->updateLayout();
+
+        this->scheduleUpdate();
+        return true;
+    }
+    // add a label with the given ID
+    void addLabel(std::string ID, std::string img = "") {
+        std::string position = Mod::get()->template getSettingValue<std::string>("position");
 
         auto director = CCDirector::sharedDirector();
         float screenTop = director->getScreenTop();
@@ -59,488 +272,130 @@ class $modify(customUILayer, UILayer) {
         float screenLeft = director->getScreenLeft();
         float screenRight = director->getScreenRight();
 
-        // if you want image mode
-        if (img) {
-            m_fields->node = CCNode::create();
-            m_fields->node->setID(ID);
+        text = statText::create(img);
 
-            // img
-            m_fields->img = CCSprite::create((ID + ".png").c_str());
-            m_fields->img->setID("image");
-            m_fields->img->setScale(0.3f);
-            m_fields->img->setAnchorPoint({ 1, 1 });
-            m_fields->node->addChild(m_fields->img);
-            // text
-            m_fields->text = CCLabelBMFont::create("", "bigFont.fnt");
-            m_fields->text->setID("text");
-            m_fields->text->setColor({ 255, 255, 255 });
-            m_fields->text->setOpacity(64);
-            m_fields->text->setZOrder(999);
-            m_fields->text->setScale(0.3f);
-            m_fields->text->setAnchorPoint({ 0, 1 });
-            m_fields->node->addChild(m_fields->text);
+        text->setID(ID);
 
-            // set position
-            if (position == "top-left") {
-                m_fields->node->setPosition(13, (int)(screenTop - m_fields->currentPos));
-                m_fields->node->setAnchorPoint({ 0, 1 });
-            }
-            else if (position == "bottom-left") {
-                m_fields->node->setPosition(13, (int)(screenBottom + m_fields->currentPos + 8));
-                m_fields->node->setAnchorPoint({ 0, 1 });
-            }
-            else if (position == "top-right") {
-                m_fields->node->setPosition(screenRight - 13, (int)(screenTop - m_fields->currentPos));
-                m_fields->node->setAnchorPoint({ 1, 1 });
-            }
-            else {
-                m_fields->node->setPosition(screenRight - 13, (int)(screenBottom + m_fields->currentPos + 8));
-                m_fields->node->setAnchorPoint({ 1, 1 });
-            }
-
-            this->addChild(m_fields->node);
+        if (position == "top-left") {
+            text->setPosition(5, (int)(screenTop - currentPos));
+            text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "bottom-left") {
+            text->setPosition(5, (int)(screenBottom + currentPos + 8));
+            text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "top-right") {
+            text->setPosition(screenRight - 5, (int)(screenTop - currentPos));
+            text->setAnchorPoint({ 1, 1 });
         }
         else {
-            // text mode
-            m_fields->text = CCLabelBMFont::create("", "bigFont.fnt");
-            m_fields->text->setID(ID);
-            m_fields->text->setColor({ 255, 255, 255 });
-            m_fields->text->setOpacity(64);
-            m_fields->text->setZOrder(999);
-            m_fields->text->setScale(0.3f);
-            if (position == "top-left") {
-                m_fields->text->setPosition(5, (int)(screenTop - m_fields->currentPos));
-                m_fields->text->setAnchorPoint({ 0, 1 });
-            }
-            else if (position == "bottom-left") {
-                m_fields->text->setPosition(5, (int)(screenBottom + m_fields->currentPos + 8));
-                m_fields->text->setAnchorPoint({ 0, 1 });
-            }
-            else if (position == "top-right") {
-                m_fields->text->setPosition(screenRight - 5, (int)(screenTop - m_fields->currentPos));
-                m_fields->text->setAnchorPoint({ 1, 1 });
-            }
-            else {
-                m_fields->text->setPosition(screenRight - 5, (int)(screenBottom + m_fields->currentPos + 8));
-                m_fields->text->setAnchorPoint({ 1, 1 });
-            }
-            this->addChild(m_fields->text);
+            text->setPosition(screenRight - 5, (int)(screenBottom + currentPos + 8));
+            text->setAnchorPoint({ 1, 1 });
         }
 
-        //m_fields->node->addChild(m_fields->text);
+        text->setZOrder(999);
 
+        this->addChild(text);
+        currentPos = currentPos + 11;
+    }
+};
 
+/*class $modify(StatDisplayUI, UILayer) {
+    struct Fields {
+        statText* text = nullptr;
+        int currentPos = 2;
+    };
+    // add a label with the given ID
+    void addLabel(std::string ID, std::string img="") {
+        std::string position = Mod::get()->template getSettingValue<std::string>("position");
+
+        auto director = CCDirector::sharedDirector();
+        float screenTop = director->getScreenTop();
+        float screenBottom = director->getScreenBottom();
+        float screenLeft = director->getScreenLeft();
+        float screenRight = director->getScreenRight();
+
+        m_fields->text = statText::create(img);
+
+        m_fields->text->setID(ID);
+
+        if (position == "top-left") {
+            m_fields->text->setPosition(5, (int)(screenTop - m_fields->currentPos));
+            m_fields->text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "bottom-left") {
+            m_fields->text->setPosition(5, (int)(screenBottom + m_fields->currentPos + 8));
+            m_fields->text->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "top-right") {
+            m_fields->text->setPosition(screenRight - 5, (int)(screenTop - m_fields->currentPos));
+            m_fields->text->setAnchorPoint({ 1, 1 });
+        }
+        else {
+            m_fields->text->setPosition(screenRight - 5, (int)(screenBottom + m_fields->currentPos + 8));
+            m_fields->text->setAnchorPoint({ 1, 1 });
+        }
+
+        m_fields->text->setZOrder(999);
+
+        this->addChild(m_fields->text);
         m_fields->currentPos = m_fields->currentPos + 11;
     }
-    bool init(GJBaseGameLayer * layer) {
-        //get settings
-        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
-        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
-        std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
-        std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
-        std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
-        std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
-        std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
-        std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
-        std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
-        std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
-        std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
-        std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
-/*
-        if (jumps == "always") {
-            m_fields->activateStats[(int)stats::JUMPS] = true;
-        }
-        if (attempts == "always") {
-            m_fields->activateStats[(int)stats::ATTEMPTS] = true;
-        }
-        if (stars == "always" || (layer->m_level->m_stars.value() != 0 && !m_level->isPlatformer() && stars == "when playing rated classic levels")) {
-            m_fields->activateStats[(int)stats::STARS] = true;
-        }
-        if (online == "always") {
-            ui->m_fields->activateStats[(int)stats::ONLINE_LEVELS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::DEMONS] = (demons == "always");
-        }
-        else if (demons == "always" || (m_level->m_demon.value() == 1 && demons == "when playing demon levels")) {
-            ui->m_fields->activateStats[(int)stats::DEMONS] = true;
-        }
-        if (liked == "always") {
-            ui->m_fields->activateStats[(int)stats::LIKED_LEVELS] = true;
-        }
-        if (rated == "always") {
-            ui->m_fields->activateStats[(int)stats::RATED_LEVELS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::USER_COINS] = (coins == "always");
-        }
-        else if (coins == "always" || (m_level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins")) {
-            ui->m_fields->activateStats[(int)stats::USER_COINS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::MANA_ORBS] = (orbs == "always");
-        }
-        else if (orbs == "always" || (m_level->m_stars != 0 && orbs == "when playing rated levels")) {
-            ui->m_fields->activateStats[(int)stats::MANA_ORBS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::MOONS] = (moons == "always");
-        }
-        else if (moons == "always" || (m_level->m_stars.value() != 0 && m_level->isPlatformer() && moons == "when playing rated platformer levels")) {
-            ui->m_fields->activateStats[(int)stats::MOONS] = true;
-        }
-        if (lists == "always") {
-            ui->m_fields->activateStats[(int)stats::LIST_REWARDS] = true;
-        }
-        // Add extra checks for main insane levels
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::INSANES] = (insanes == "always");
-        }
-        else if (insanes == "always" || ((((m_level->m_stars.value() == 8 || m_level->m_stars.value() == 9) && m_level->m_creatorName != "")
-            || (m_level->m_creatorName == "" && m_level->m_stars.value() >= 10 && m_level->m_stars.value() < 14 && m_level->m_levelName != "Geometrical Dominator" && m_level->m_levelName != "Blast Processing"))
-            && insanes == "when playing insane difficulty levels")) {
-            ui->m_fields->activateStats[(int)stats::INSANES] = true;
-        }*/
-
-
-        if (!UILayer::init(layer)) return false;
-        geode::log::debug("m_gameLayer->m_level={}", m_gameLayer->m_level);
-
-
-
-        if (m_fields->activateStats[(int)stats::JUMPS]) {
-            addLabel("jumps"_spr);
-        }
-        geode::log::debug("UI jump activation (in UI) = {}", m_fields->activateStats[(int)stats::JUMPS]);
-
-        if (m_fields->activateStats[(int)stats::ATTEMPTS]) {
-            addLabel("attempts"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::STARS]) {
-            addLabel("stars"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::ONLINE_LEVELS]) {
-            addLabel("onlineLevels"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::DEMONS]) {
-            addLabel("demons"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::LIKED_LEVELS]) {
-            addLabel("liked"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::RATED_LEVELS]) {
-            addLabel("rated"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::USER_COINS]) {
-            addLabel("coins"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::MANA_ORBS]) {
-            addLabel("orbs"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::MOONS]) {
-            addLabel("moons"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::LIST_REWARDS]) {
-            addLabel("lists"_spr);
-        }
-        if (m_fields->activateStats[(int)stats::INSANES]) {
-            addLabel("insanes"_spr);
-        }
-
-        this->updateLayout();
-
-        this->scheduleUpdate();
-
-        return true;
-    }
-};
-#include<Geode/modify/PlayLayer.hpp>
-class $modify(PlayLayer) {
-    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-        geode::log::debug("level={}", level);
-
-        if (PlayLayer::init(level, useReplay, dontCreateObjects) == false) {
-            return false;
-        }
-
-    customUILayer* ui = (customUILayer*) m_uiLayer;
-    for (int i = 0; i < 43; i++) {
-        ui->m_fields->activateStats[i] = false;
-    }
-
-    // get settings
-    std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
-    std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
-    std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
-    std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
-    std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
-    std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
-    std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
-    std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
-    std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
-    std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
-    std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
-    std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
-    if (jumps == "always") {
-        ui->m_fields->activateStats[(int)stats::JUMPS] = true;
-    }
-    geode::log::debug("UI jump activation = {}", ui->m_fields->activateStats[(int)stats::JUMPS]);
-
-    if (attempts == "always") {
-        ui->m_fields->activateStats[(int)stats::ATTEMPTS] = true;
-    }
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::STARS] = (stars == "always");
-    }
-    else if (stars == "always" || (level->m_stars.value() != 0 && !level->isPlatformer() && stars == "when playing rated classic levels")) {
-        ui->m_fields->activateStats[(int)stats::STARS] = true;
-    }
-    if (online == "always") {
-        ui->m_fields->activateStats[(int)stats::ONLINE_LEVELS] = true;
-    }
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::DEMONS] = (demons == "always");
-    }
-    else if (demons == "always" || (level->m_demon.value() == 1 && demons == "when playing demon levels")) {
-        ui->m_fields->activateStats[(int)stats::DEMONS] = true;
-    }
-    if (liked == "always") {
-        ui->m_fields->activateStats[(int)stats::LIKED_LEVELS] = true;
-    }
-    if (rated == "always") {
-        ui->m_fields->activateStats[(int)stats::RATED_LEVELS] = true;
-    }
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::USER_COINS] = (coins == "always");
-    }
-    else if (coins == "always" || (level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins")) {
-        ui->m_fields->activateStats[(int)stats::USER_COINS] = true;
-    }
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::MANA_ORBS] = (orbs == "always");
-    }
-    else if (orbs == "always" || (level->m_stars != 0 && orbs == "when playing rated levels")) {
-        ui->m_fields->activateStats[(int)stats::MANA_ORBS] = true;
-    }
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::MOONS] = (moons == "always");
-    }
-    else if (moons == "always" || (level->m_stars.value() != 0 && level->isPlatformer() && moons == "when playing rated platformer levels")) {
-        ui->m_fields->activateStats[(int)stats::MOONS] = true;
-    }
-    if (lists == "always") {
-        ui->m_fields->activateStats[(int)stats::LIST_REWARDS] = true;
-    }
-    // Add extra checks for main insane levels
-    if (level == nullptr) {
-        ui->m_fields->activateStats[(int)stats::INSANES] = (insanes == "always");
-    }
-    else if (insanes == "always" || ((((level->m_stars.value() == 8 || level->m_stars.value() == 9) && level->m_creatorName != "")
-        || (level->m_creatorName == "" && level->m_stars.value() >= 10 && level->m_stars.value() < 14 && level->m_levelName != "Geometrical Dominator" && level->m_levelName != "Blast Processing"))
-        && insanes == "when playing insane difficulty levels")) {
-        ui->m_fields->activateStats[(int)stats::INSANES] = true;
-    }
-
-    return true;
-    }
-};
+};*/
 class $modify(GJBaseGameLayer) {
-
-    /*bool init() {
-        if (GJBaseGameLayer::init() == false) {
-            return false;
-        }
- 
-        customUILayer* ui = (customUILayer*) m_uiLayer;
-        for (int i = 0; i < 43; i++) {
-            ui->m_fields->activateStats[i] = false;
-        }
-
-        // get settings
-        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
-        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
-        std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
-        std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
-        std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
-        std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
-        std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
-        std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
-        std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
-        std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
-        std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
-        std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
-        
-        if (jumps == "always") {
-            ui->m_fields->activateStats[(int)stats::JUMPS] = true;
-        }
-        if (attempts == "always") {
-            ui->m_fields->activateStats[(int)stats::ATTEMPTS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::STARS] = (stars == "always");
-        }
-        else if (stars == "always" || (m_level->m_stars.value() != 0 && !m_level->isPlatformer() && stars == "when playing rated classic levels")) {
-            ui->m_fields->activateStats[(int)stats::STARS] = true;
-        }
-        if (online == "always") {
-            ui->m_fields->activateStats[(int)stats::ONLINE_LEVELS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::DEMONS] = (demons == "always");
-        }
-        else if (demons == "always" || (m_level->m_demon.value() == 1 && demons == "when playing demon levels")) {
-            ui->m_fields->activateStats[(int)stats::DEMONS] = true;
-        }
-        if (liked == "always") {
-            ui->m_fields->activateStats[(int)stats::LIKED_LEVELS] = true;
-        }
-        if (rated == "always") {
-            ui->m_fields->activateStats[(int)stats::RATED_LEVELS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::USER_COINS] = (coins == "always");
-        }
-        else if (coins == "always" || (m_level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins")) {
-            ui->m_fields->activateStats[(int)stats::USER_COINS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::MANA_ORBS] = (orbs == "always");
-        }
-        else if (orbs == "always" || (m_level->m_stars != 0 && orbs == "when playing rated levels")) {
-            ui->m_fields->activateStats[(int)stats::MANA_ORBS] = true;
-        }
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::MOONS] = (moons == "always");
-        }
-        else if (moons == "always" || (m_level->m_stars.value() != 0 && m_level->isPlatformer() && moons == "when playing rated platformer levels")) {
-            ui->m_fields->activateStats[(int)stats::MOONS] = true;
-        }
-        if (lists == "always") {
-            ui->m_fields->activateStats[(int)stats::LIST_REWARDS] = true;
-        }
-        // Add extra checks for main insane levels
-        if (m_level == nullptr) {
-            ui->m_fields->activateStats[(int)stats::INSANES] = (insanes == "always");
-        }
-        else if (insanes == "always" || ((((m_level->m_stars.value() == 8 || m_level->m_stars.value() == 9) && m_level->m_creatorName != "")
-            || (m_level->m_creatorName == "" && m_level->m_stars.value() >= 10 && m_level->m_stars.value() < 14 && m_level->m_levelName != "Geometrical Dominator" && m_level->m_levelName != "Blast Processing"))
-            && insanes == "when playing insane difficulty levels")) {
-            ui->m_fields->activateStats[(int)stats::INSANES] = true;
-        }
-
-        return true;
-    }*/
-
     // to determine whether to display the stats: use GJGameLevel: m_level
     // m_level->m_stars.value() for stars/moons
     // m_level->isPlatformer() for if level is platformer
     // m_level->m_coinsVerified.value() for if coins are verified
 
-    // Set the visibility status of the image for a given id
-    void updateImg(CCSprite* img) {
-        //get settings
-        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
-        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
-        std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
-        std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
-        std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
-        std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
-        std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
-        std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
-        std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
-        std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
-        std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
-        std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
-        
-
-        // check status
-        if (jumps == "always" && (img->getParent()->getID() == "jumps"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying jumps");
-        }
-        else if (attempts == "always" && (img->getParent()->getID() == "attempts"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying attempts");
-        }
-        else if ((stars == "always" || (m_level->m_stars.value() != 0 && !m_level->isPlatformer() && stars == "when playing rated classic levels"))
-            && (img->getParent()->getID() == "stars"_spr)) {
-            img->setVisible(true);
-        }
-        else if (online == "always" && (img->getParent()->getID() == "onlineLevels"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying online levels");
-        }
-        else if ((demons == "always" || (m_level->m_demon.value() == 1 && demons == "when playing demon levels")) && (img->getParent()->getID() == "demons"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying demons");
-        }
-        else if (liked == "always" && (img->getParent()->getID() == "liked"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying liked levels");
-        }
-        else if (rated == "always" && (img->getParent()->getID() == "rated"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying rated levels");
-        }
-        else if ((coins == "always" || (m_level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins"))
-            && (img->getParent()->getID() == "coins"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying user coins");
-        }
-        else if ((orbs == "always" || (m_level->m_stars != 0 && orbs == "when playing rated levels")) && (img->getParent()->getID() == "orbs"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying mana orbs");
-        }
-        else if ((moons == "always" || (m_level->m_stars.value() != 0 && m_level->isPlatformer() && moons == "when playing rated platformer levels"))
-            && (img->getParent()->getID() == "moons"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying moons");
-        }
-        else if (lists == "always" && (img->getParent()->getID() == "lists"_spr)) {
-            img->setVisible(true);
-            geode::log::debug("Displaying lists");
-        }
-        // Add extra checks for main insane levels
-        else if ((insanes == "always" || ((((m_level->m_stars.value() == 8 || m_level->m_stars.value() == 9) && m_level->m_creatorName != "")
-            || (m_level->m_creatorName == "" && m_level->m_stars.value() >= 10 && m_level->m_stars.value() < 14 && m_level->m_levelName != "Geometrical Dominator" && m_level->m_levelName != "Blast Processing"))
-            && insanes == "when playing insane difficulty levels")) && (img->getParent()->getID() == "insanes"_spr)) {
-            img->setVisible(true);
-        }
-        else {
-            img->setVisible(false);
-        }
-    }
-    
     // update the text for a given id
-    void updateText(std::string id, std::string before, stats stat, std::string after, int posOffset) {
-        bool img = Mod::get()->template getSettingValue<bool>("useImg");
-        CCLabelBMFont* text = nullptr;
-        if (!img) {
-            text = (CCLabelBMFont*)this->m_uiLayer->getChildByID(id);
-        }
-        // if you wish to use the image mode, initialize the text and the image as children of the node
-        else {
-            CCNode* n = this->m_uiLayer->getChildByID(id);
-            if (n) {
-                text = (CCLabelBMFont*)n->getChildByID("text");
-                CCSprite* img = (CCSprite*)n->getChildByID("image");
-               // if (img) {
-                //    updateImg(img);
-              //  }
-            }
-        }
-        std::string statID = std::to_string(static_cast<int>(stat));
-
-        if (text!=nullptr) {
-            if (!img) {
-                text->setString((before + std::to_string(GameStatsManager::get()->getStat(statID.c_str())) + after).c_str());
-            }
-            else {
-                text->setString(std::to_string(GameStatsManager::get()->getStat(statID.c_str())).c_str());
+    void updateText(std::string id, std::string before, stats stat, std::string after) {
+        allStats* s = (allStats*)this->m_uiLayer->getChildByID("stats"_spr);
+        if (s != nullptr) {
+            statText* text = (statText*)s->getChildByID(id);
+            if (text != nullptr) {
+                CCLabelBMFont* t = text->text;
+                std::string statID = std::to_string(static_cast<int>(stat));
+                bool img = Mod::get()->template getSettingValue<bool>("useImg");
+                if (t != nullptr) {
+                    if (img) {
+                        t->setString(std::to_string(GameStatsManager::get()->getStat(statID.c_str())).c_str());
+                    }
+                    else {
+                        t->setString((before + std::to_string(GameStatsManager::get()->getStat(statID.c_str())) + after).c_str());
+                    }
+                }
             }
         }
     }
-
+    void createTextLayers() {
+        GJBaseGameLayer::createTextLayers();
+        allStats* stat = allStats::create(m_level);
+        m_uiLayer->addChild(stat);
+        std::string position = Mod::get()->template getSettingValue<std::string>("position");
+        auto director = CCDirector::sharedDirector();
+        float screenTop = director->getScreenTop();
+        float screenBottom = director->getScreenBottom();
+        float screenLeft = director->getScreenLeft();
+        float screenRight = director->getScreenRight();
+        if (position == "top-left") {
+            stat->setPosition(5, (int)(screenTop - 2));
+            stat->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "bottom-left") {
+            stat->setPosition(5, (int)(screenBottom + 10));
+            stat->setAnchorPoint({ 0, 1 });
+        }
+        else if (position == "top-right") {
+            stat->setPosition(screenRight - 5, (int)(screenTop - 2));
+            stat->setAnchorPoint({ 1, 1 });
+        }
+        else {
+            stat->setPosition(screenRight - 5, (int)(screenBottom + 10 ));
+            stat->setAnchorPoint({ 1, 1 });
+        }
+        stat->setZOrder(999);
+    }
     // modify the update method
     void update(float dt) {
         GJBaseGameLayer::update(dt);
@@ -561,45 +416,110 @@ class $modify(GJBaseGameLayer) {
 
         // update stats
         if (jumps == "always") {
-            updateText("jumps"_spr, "You currently have jumped ", stats::JUMPS, " times", -13);
+            updateText("jumps"_spr, "You currently have jumped ", stats::JUMPS, " times");
         }
         if (attempts == "always") {
-            updateText("attempts"_spr, "You currently have done ", stats::ATTEMPTS, " attempts", -12);
+            updateText("attempts"_spr, "You currently have done ", stats::ATTEMPTS, " attempts");
         }
         if (stars == "always" || (m_level->m_stars.value() != 0 && !m_level->isPlatformer() && stars == "when playing rated classic levels")) {
-            updateText("stars"_spr, "You currently have ", stats::STARS, " stars", 11);
+            updateText("stars"_spr, "You currently have ", stats::STARS, " stars");
         }
-        if (online == "always") { 
-            updateText("onlineLevels"_spr, "You currently have completed ", stats::ONLINE_LEVELS, " online levels", -34);
+        if (online == "always") {
+            updateText("onlineLevels"_spr, "You currently have completed ", stats::ONLINE_LEVELS, " online levels");
         }
-        if (demons == "always" || (m_level->m_demon.value() == 1 && demons == "when playing demon levels")) { 
-            updateText("demons"_spr, "You currently have completed ", stats::DEMONS, " demons", -17);
+        if (demons == "always" || (m_level->m_demon.value() == 1 && demons == "when playing demon levels")) {
+            updateText("demons"_spr, "You currently have completed ", stats::DEMONS, " demons");
         }
         if (liked == "always") {
-            updateText("liked"_spr, "You currently have liked ", stats::LIKED_LEVELS, " levels", -4);
+            updateText("liked"_spr, "You currently have liked ", stats::LIKED_LEVELS, " levels");
         }
         if (rated == "always") {
-            updateText("rated"_spr, "You currently have rated ", stats::RATED_LEVELS, " levels", -6);
+            updateText("rated"_spr, "You currently have rated ", stats::RATED_LEVELS, " levels");
         }
-        if (coins == "always" || (m_level->m_coinsVerified.value()>=1 && coins=="when playing levels with rated coins")) {
-            updateText("coins"_spr, "You currently have ", stats::USER_COINS, " user coins", 0);
+        if (coins == "always" || (m_level->m_coinsVerified.value() >= 1 && coins == "when playing levels with rated coins")) {
+            updateText("coins"_spr, "You currently have ", stats::USER_COINS, " user coins");
         }
-        if (orbs == "always" || (m_level->m_stars!=0 && orbs=="when playing rated levels")) {
-            updateText("orbs"_spr, "You currently have ", stats::MANA_ORBS, " mana orbs",3);
+        if (orbs == "always" || (m_level->m_stars != 0 && orbs == "when playing rated levels")) {
+            updateText("orbs"_spr, "You currently have ", stats::MANA_ORBS, " mana orbs");
         }
         if (moons == "always" || (m_level->m_stars.value() != 0 && m_level->isPlatformer() && moons == "when playing rated platformer levels")) {
-            updateText("moons"_spr, "You currently have ", stats::MOONS, " moons",10);
+            updateText("moons"_spr, "You currently have ", stats::MOONS, " moons");
         }
         if (lists == "always") {
-            updateText("lists"_spr, "You currently have claimed ", stats::LIST_REWARDS, " list rewards",-23);
+            updateText("lists"_spr, "You currently have claimed ", stats::LIST_REWARDS, " list rewards");
         }
         // Add extra checks for main insane levels
-        if (insanes == "always" || ((((m_level->m_stars.value()==8||m_level->m_stars.value()==9) && m_level->m_creatorName!="")
-            || (m_level->m_creatorName == ""&&m_level->m_stars.value()>=10&&m_level->m_stars.value()<14&&m_level->m_levelName!="Geometrical Dominator" && m_level->m_levelName != "Blast Processing"))
+        if (insanes == "always" || ((((m_level->m_stars.value() == 8 || m_level->m_stars.value() == 9) && m_level->m_creatorName != "")
+            || (m_level->m_creatorName == "" && m_level->m_stars.value() >= 10 && m_level->m_stars.value() < 14 && m_level->m_levelName != "Geometrical Dominator" && m_level->m_levelName != "Blast Processing"))
             && insanes == "when playing insane difficulty levels")) {
-            updateText("insanes"_spr, "You currently have completed ", stats::INSANES, " insane levels",-34);
+            updateText("insanes"_spr, "You currently have completed ", stats::INSANES, " insane levels");
         }
     }
+    void addLabel(std::string ID, std::string img="") {
+        allStats* s = (allStats*)this->m_uiLayer->getChildByID("stats"_spr);
+        s->addLabel(ID,img);
+
+    }
+   /* bool init() {
+        if (GJBaseGameLayer::init() == false) {
+            return false;
+        }
+        //get settings
+        std::string jumps = Mod::get()->template getSettingValue<std::string>("displayJumps");
+        std::string attempts = Mod::get()->template getSettingValue<std::string>("displayAttempts");
+        std::string online = Mod::get()->template getSettingValue<std::string>("displayOnlineLevels");
+        std::string demons = Mod::get()->template getSettingValue<std::string>("displayDemons");
+        std::string stars = Mod::get()->template getSettingValue<std::string>("displayStars");
+        std::string liked = Mod::get()->template getSettingValue<std::string>("displayLiked");
+        std::string rated = Mod::get()->template getSettingValue<std::string>("displayRated");
+        std::string coins = Mod::get()->template getSettingValue<std::string>("displayCoins");
+        std::string orbs = Mod::get()->template getSettingValue<std::string>("displayManaOrbs");
+        std::string moons = Mod::get()->template getSettingValue<std::string>("displayMoons");
+        std::string lists = Mod::get()->template getSettingValue<std::string>("displayLists");
+        std::string insanes = Mod::get()->template getSettingValue<std::string>("displayInsanes");
+        if (jumps != "never") {
+            addLabel("jumps"_spr);
+        }
+        if (attempts != "never") {
+            addLabel("attempts"_spr);
+        }
+        if (stars != "never") {
+            addLabel("stars"_spr);
+        }
+        if (online != "never") {
+            addLabel("onlineLevels"_spr);
+        }
+        if (demons != "never") {
+            addLabel("demons"_spr);
+        }
+        if (liked != "never") {
+            addLabel("liked"_spr);
+        }
+        if (rated != "never") {
+            addLabel("rated"_spr);
+        }
+        if (coins != "never") {
+            addLabel("coins"_spr);
+        }
+        if (orbs != "never") {
+            addLabel("orbs"_spr);
+        }
+        if (moons != "never") {
+            addLabel("moons"_spr);
+        }
+        if (lists != "never") {
+            addLabel("lists"_spr);
+        }
+        if (insanes != "never") {
+            addLabel("insanes"_spr);
+        }
+
+        this->updateLayout();
+
+        this->scheduleUpdate();
+
+        return true;
+    }*/
 };
 
 
@@ -610,7 +530,7 @@ class $modify(GJBaseGameLayer) {
 */
 class $modify(GameStatsManager) {
     int getStat(char const* p0) {
-        int value=GameStatsManager::getStat(p0);
+        int value = GameStatsManager::getStat(p0);
         bool logStatChanges = Mod::get()->template getSettingValue<bool>("enableLogs");
         if (logStatChanges) {
             geode::log::debug("p0 = {}, return value {}", p0, value);
