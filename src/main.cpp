@@ -210,6 +210,7 @@ class $modify(GJBaseGameLayer) {
         auto fields = m_fields.self();
         fields->m_statsContainer = CCNode::create();
         fields->m_statsContainer->setZOrder(999);
+        fields->m_statsContainer->setID("stats"_spr);
 
         m_uiLayer->addChild(fields->m_statsContainer);
 
