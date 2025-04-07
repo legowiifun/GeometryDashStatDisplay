@@ -43,6 +43,7 @@ enum class Stat {
     MOONS = 28, DIAMOND_SHARDS, GAUNTLETS = 40, LIST_REWARDS, INSANES
 };
 
+// The strings used in text mode
 std::unordered_map<Stat, std::pair<std::string, std::string>> g_strings = {
     {Stat::JUMPS, {"You currently have jumped ", " times"}},
     {Stat::ATTEMPTS, {"You currently have done ", " attempts"}},
@@ -58,6 +59,7 @@ std::unordered_map<Stat, std::pair<std::string, std::string>> g_strings = {
     {Stat::INSANES, {"You currently have completed ", " insane levels"}},
 };
 
+// Contains the text and image for one stat
 class StatNode : public CCNodeRGBA {
 
     Stat m_stat;
@@ -83,6 +85,7 @@ public:
         m_stat = stat;
         setContentHeight(40);
 
+        //create teh sprite and label
         m_sprite = CCSprite::create(fmt::format("{}.png"_spr, id).c_str());
         m_label = CCLabelBMFont::create("", "bigFont.fnt");
         m_label->setOpacity(64);
@@ -98,6 +101,7 @@ public:
             setVisible(false);
         }
 
+        // go through each stat
         switch (stat) {
             case Stat::STARS: {
                 if (level->m_stars != 0 && !level->isPlatformer() && display == "when playing rated classic levels") {
@@ -131,6 +135,7 @@ public:
             }
             case Stat::INSANES: {
                 bool isStar = level->m_stars == 8 || level->m_stars == 9;
+                // account for robtop insanes
                 bool hasCreator = level->m_creatorName != "";
                 bool isRob = !hasCreator && level->m_stars >= 10 && level->m_stars < 14;
                 bool isntExcluded = level->m_levelName != "Geometrical Dominator" && level->m_levelName != "Blast Processing";
@@ -150,6 +155,7 @@ public:
         }
         addChild(m_label);
 
+        // set the layout
         AxisLayout* layout = AxisLayout::create(Axis::Row)
             ->setAutoScale(true)
             ->setGap(5.f)
@@ -164,7 +170,7 @@ public:
         updateLabel();
         return true;
     }
-
+    // update the label
     void updateLabel() {
 
         std::string statID = utils::numToString((int)m_stat);
@@ -202,6 +208,8 @@ class $modify(GJBaseGameLayer) {
         }
     }
     
+    // replacement for init
+    // so we can access m_level
     void createTextLayers() {
         GJBaseGameLayer::createTextLayers();
 
@@ -266,6 +274,7 @@ class $modify(GJBaseGameLayer) {
         fields->m_statsContainer->updateLayout();
     }
 
+    // create a stats node
     void createStatsNode(CCNode* parent, Stat stat, std::string id) {
         StatNode* node = StatNode::create(stat, id, m_level);
         parent->addChild(node);

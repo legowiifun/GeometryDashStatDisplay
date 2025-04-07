@@ -1,3 +1,8 @@
+# 2.0.0
+- IOS support!
+- Support for images as requested by mariokirby1703
+- Major rewrite by Alphalaneous
+- New mod logo by ezpixelGD
 # 1.0.2
 - Fix a bug involving the pause menu button
 - Make it so you can turn the pause menu button off

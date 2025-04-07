@@ -8,7 +8,7 @@
 	},
 	"id": "legowiifun.stat_display",
 	"name": "Stat Display",
-	"version": "v1.0.2",
+	"version": "v2.0.0",
 	"developer": "legowiifun",
 	"description": "Display stats while playing levels",
 	"settings": {
@@ -130,7 +130,7 @@
 	"dependencies": [
 		{
 			"id": "geode.node-ids",
-			"version": ">=v1.17.0",
+			"version": ">=v1.20.1",
 			"importance": "required"
 		}
 	],

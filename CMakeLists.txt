@@ -8,13 +8,14 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-project(StatDisplay VERSION 1.0.2)
+project(StatDisplay VERSION 2.0.0)
 
 # Set up the mod binary
 add_library(${PROJECT_NAME} SHARED
-    src/main.cpp
+    "src/main.cpp"
     # Add any extra C++ source files here
- "src/PauseLayer.cpp")
+ "src/PauseLayer.cpp"
+)
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")

@@ -1,1 +1,2 @@
-Track various statistics live while playing the game, useful for motivation to work towards some of the games achievements.
+Track various statistics live while playing the game, useful for motivation to work towards some of the games achievements. Massive thanks to Alphalaneous for rewriting some of the messier parts of my code, and getting images working. 
+The mod logo is by ezpixelGD, though I made some modifications to it. 
