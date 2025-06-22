@@ -1,3 +1,5 @@
+# 2.0.1
+- JIT-less IOS support!
 # 2.0.0
 - IOS support!
 - Support for images as requested by mariokirby1703
