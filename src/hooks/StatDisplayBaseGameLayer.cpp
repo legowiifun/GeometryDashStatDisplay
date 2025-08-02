@@ -1,26 +1,6 @@
-#pragma once
-/**
- * Include the Geode headers.
- */
-#include <Geode/Geode.hpp>
-#include <Geode/modify/GJBaseGameLayer.hpp>
-#include <Geode/modify/GJGameLevel.hpp>
+#include "StatDisplayBaseGameLayer.hpp"
 
-#include "../main.cpp"
-#include "../Stat.cpp"
-#include "../StatNode.cpp"
 
- /**
-  * Brings cocos2d and all Geode namespaces to the current scope.
-  */
-using namespace geode::prelude;
-
-class $modify(StatDisplayBaseGameLayer, GJBaseGameLayer) {
-
-    struct Fields {
-        CCNode* m_statsContainer;
-        bool hasFinishedCreateTextLayers = false;
-    };
 
     // to determine whether to display the stats: use GJGameLevel: m_level
     // m_level->m_stars.value() for stars/moons
@@ -28,7 +8,7 @@ class $modify(StatDisplayBaseGameLayer, GJBaseGameLayer) {
     // m_level->m_coinsVerified.value() for if coins are verified
 
     // update the text
-    void updateText() {
+    void StatDisplayBaseGameLayer::updateText() {
         auto fields = m_fields.self();
         for (StatNode* node : CCArrayExt<StatNode*>(fields->m_statsContainer->getChildren())) {
             node->updateLabel();
@@ -37,13 +17,13 @@ class $modify(StatDisplayBaseGameLayer, GJBaseGameLayer) {
 
     // replacement for init
     // so we can access m_level
-    void createTextLayers() {
+    void StatDisplayBaseGameLayer::createTextLayers() {
         GJBaseGameLayer::createTextLayers();
 
         std::string position = Mod::get()->getSettingValue<std::string>("position");
 
         auto fields = m_fields.self();
-        fields->m_statsContainer = CCNode::create();
+        //fields->m_statsContainer = CCNode::create();
         fields->m_statsContainer->setZOrder(999);
         fields->m_statsContainer->setID("stats"_spr);
 
@@ -103,14 +83,15 @@ class $modify(StatDisplayBaseGameLayer, GJBaseGameLayer) {
     }
 
     // create a stats node
-    void createStatsNode(CCNode * parent, Stat stat, std::string id, int* value = nullptr, std::string start = "", std::string end = "") {
-        StatNode* node = StatNode::create(stat, id, m_level, value, start, end);
-        parent->addChild(node);
+    void StatDisplayBaseGameLayer::createStatsNode(CCNode * parent, Stat stat, std::string id, int value) {
+        StatNode* node = StatNode::create(stat, id, m_level, value);
+        if (node != nullptr&&parent!=nullptr) {
+            parent->addChild(node);
+        }
     }
 
     // modify the update method
-    void update(float dt) {
+    void StatDisplayBaseGameLayer::update(float dt) {
         GJBaseGameLayer::update(dt);
         updateText();
     }
-};
