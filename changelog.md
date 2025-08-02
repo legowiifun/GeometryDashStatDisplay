@@ -1,3 +1,6 @@
+# 2.1.0
+- Refactoring
+- Added support for a dispatch-events based API
 # 2.0.1
 - JIT-less IOS support!
 # 2.0.0
