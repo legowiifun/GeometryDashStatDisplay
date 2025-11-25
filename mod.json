@@ -1,5 +1,5 @@
 {
-	"geode": "4.7.0",
+	"geode": "4.10.0",
 	"gd": {
 		"win": "2.2074",
 		"android": "2.2074",
@@ -126,14 +126,10 @@
 			"default": "when playing insane difficulty levels"
 		}
 	},
-	"tags": ["Gameplay","Offline","Enhancement","Interface","Utility"],
-	"dependencies": [
-		{
-			"id": "geode.node-ids",
-			"version": ">=v1.20.1",
-			"importance": "required"
-		}
-	],
+	"tags": ["gameplay","offline","enhancement","interface","utility"],
+	"dependencies": {
+  		"geode.node-ids": ">=v1.20.1"
+ 	},
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashStatDisplay"
 	},
