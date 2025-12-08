@@ -16,7 +16,8 @@ add_library(${PROJECT_NAME} SHARED
     # Add any extra C++ source files here
  "src/hooks/StatDisplaySettingsLayer.cpp"
  "src/hooks/StatDisplayBaseGameLayer.cpp"
- "src/Stat.cpp" "src/StatNode.cpp")
+ "src/Stat.cpp" "src/StatNode.cpp"
+ "src/hooks/StatLearnManager.cpp")
 
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")

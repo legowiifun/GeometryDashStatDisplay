@@ -6,7 +6,6 @@
 #include <Geode/modify/GJBaseGameLayer.hpp>
 #include <Geode/modify/GJGameLevel.hpp>
 
-#include "../main.hpp"
 #include "../Stat.cpp"
 #include "../StatNode.hpp"
 

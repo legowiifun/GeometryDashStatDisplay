@@ -3,15 +3,13 @@
  * Include the Geode headers.
  */
 #include <Geode/Geode.hpp>
-#include <Geode/modify/GameStatsManager.hpp>
-#include <Geode/modify/GJGameLevel.hpp>
 #include <Geode/loader/Event.hpp>
 #include <Geode/loader/Dispatch.hpp>
 
 #include "Stat.cpp"
 #include "hooks/StatDisplayBaseGameLayer.hpp"
-#include "StatNode.hpp"
- /**
+
+/**
   * Brings cocos2d and all Geode namespaces to the current scope.
   */
 using namespace geode::prelude;
@@ -31,9 +29,7 @@ using ToFilter = typename ToFilterImpl<T>::type;
 
 inline int otherStats = 0;
 
-class $modify(StatLearnManager, GameStatsManager) {
-    int getStat(char const* p0);
-};
+
 
 // The strings used in text mode
 inline std::unordered_map<int, std::pair<std::string, std::string>> g_strings = {
