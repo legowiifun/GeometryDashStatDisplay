@@ -14,7 +14,7 @@ project(StatDisplay VERSION 2.1.0)
 add_library(${PROJECT_NAME} SHARED
     "src/main.cpp"
     # Add any extra C++ source files here
- "src/hooks/PauseLayer.cpp"
+ "src/hooks/StatDisplaySettingsLayer.cpp"
  "src/hooks/StatDisplayBaseGameLayer.cpp"
  "src/Stat.cpp" "src/StatNode.cpp")
 
