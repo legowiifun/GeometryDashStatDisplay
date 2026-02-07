@@ -1,10 +1,10 @@
 {
-	"geode": "4.10.0",
+	"geode": "5.0.0-alpha.1",
 	"gd": {
-		"win": "2.2074",
-		"android": "2.2074",
-		"mac": "2.2074",
-		"ios": "2.2074"
+		"win": "2.208",
+		"android": "2.208",
+		"mac": "2.208",
+		"ios": "2.208"
 	},
 	"id": "legowiifun.stat_display",
 	"name": "Stat Display",
@@ -128,7 +128,7 @@
 	},
 	"tags": ["gameplay","offline","enhancement","interface","utility"],
 	"dependencies": {
-  		"geode.node-ids": ">=v1.20.1"
+  		"geode.node-ids": ">=v1.21.1"
  	},
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashStatDisplay"
