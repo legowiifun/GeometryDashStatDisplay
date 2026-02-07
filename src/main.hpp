@@ -14,22 +14,7 @@
   */
 using namespace geode::prelude;
 
-// set up filter for dispatch event
-using EventAddStat = geode::Dispatch<std::string, std::string, std::string, int>;
-template <class>
-struct ToFilterImpl;
-
-template <class... Args>
-struct ToFilterImpl<geode::Dispatch<Args...>> {
-    using type = geode::Dispatch <Args...>;
-};
-
-template <class T>
-using ToFilter = typename ToFilterImpl<T>::type;
-
 inline int otherStats = 0;
-
-
 
 // The strings used in text mode
 inline std::unordered_map<int, std::pair<std::string, std::string>> g_strings = {
@@ -46,5 +31,3 @@ inline std::unordered_map<int, std::pair<std::string, std::string>> g_strings = 
     {static_cast<int>(Stat::LIST_REWARDS), {"You currently have claimed ", " list rewards"}},
     {static_cast<int>(Stat::INSANES), {"You currently have completed ", " insane levels"}},
 };
-
-void addStatEvent(std::string start, std::string end, std::string id, int value);
