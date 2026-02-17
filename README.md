@@ -8,7 +8,7 @@ This mod supports an optional API. To use it, first put in your mod.json
 		"required": false
 	},
 ```
-Next, include in your #includes #include <legowiifun.stat_display/src/api.hpp>. 
+Next, include in your #includes `#include <legowiifun.stat_display/src/api.hpp>`. 
 Next, store the possible start and end strings in std::strings. For this example, I will call them start and end. 
 You also will want to store a string with the id of the stat. Make sure there is a resource in the mod resources folder with a name matching the ID, and append the ID with _spr.
 
