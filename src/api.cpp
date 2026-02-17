@@ -1,5 +1,7 @@
 #define GEODE_DEFINE_EVENT_EXPORTS
+#include "hooks/StatDisplayBaseGameLayer.hpp"
 #include "api.hpp"
+#include "Stat.cpp"
 
 geode::Result<void> stat_display_api::addStatEvent(std::string start, std::string end, std::string id, int value) {
     log::debug("Recieving addStatEvent: start={}", start);
