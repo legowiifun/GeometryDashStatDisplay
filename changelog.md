@@ -1,3 +1,6 @@
+# 2.1.1
+- 2.208 Support
+- Changed the optional API to an Event Export Macro-based API
 # 2.1.0
 - Refactoring
 - Added support for a dispatch-events based API

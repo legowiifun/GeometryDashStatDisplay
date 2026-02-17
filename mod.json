@@ -1,14 +1,14 @@
 {
-	"geode": "5.0.0-alpha.1",
+	"geode": "5.0.0-beta.2",
 	"gd": {
-		"win": "2.208",
-		"android": "2.208",
-		"mac": "2.208",
-		"ios": "2.208"
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
 	},
 	"id": "legowiifun.stat_display",
 	"name": "Stat Display",
-	"version": "v2.1.0",
+	"version": "v2.1.1",
 	"developer": "legowiifun",
 	"description": "Display stats while playing levels",
 	"settings": {
@@ -126,9 +126,12 @@
 			"default": "when playing insane difficulty levels"
 		}
 	},
+	"api": {
+		"include": ["src/api.hpp"]
+	},
 	"tags": ["gameplay","offline","enhancement","interface","utility"],
 	"dependencies": {
-  		"geode.node-ids": ">=v1.21.1"
+  		"geode.node-ids": ">=v1.22.0"
  	},
 	"links": {
 		"source": "https://github.com/legowiifun/GeometryDashStatDisplay"
