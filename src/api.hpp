@@ -16,5 +16,5 @@ using namespace geode::prelude;
 #define MY_MOD_ID "legowiifun.stat_display"
 
 namespace stat_display_api {
-    inline geode::Result<void> addStatEvent(std::string start, std::string end, std::string id, int value) GEODE_EVENT_EXPORT(&addStatEvent, (start, end, id, value));
+    inline void addStatEvent(std::string start, std::string end, std::string id, int value) GEODE_EVENT_EXPORT_NORES(&addStatEvent, (start, end, id, value));
 }
