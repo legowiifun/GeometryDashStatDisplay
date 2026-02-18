@@ -9,4 +9,5 @@ void stat_display_api::addStatEvent(std::string start, std::string end, std::str
     otherStats++;
     g_strings.insert(std::make_pair<int, std::pair<std::string, std::string>>(static_cast<int>(Stat::OTHER) + otherStats, { start, end }));
     layer->createStatsNode(layer->m_fields->m_statsContainer, Stat::OTHER, id, value);
+    layer->m_fields->m_statsContainer->updateLayout();
 }
