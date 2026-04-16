@@ -1,4 +1,8 @@
 # StatDisplay
+![Mod Version](https://api.geode-sdk.org/v1/mods/legowiifun.stat_display/status_badge?stat=version)
+![Downloads](https://api.geode-sdk.org/v1/mods/legowiifun.stat_display/status_badge?stat=downloads)
+![GD Version](https://api.geode-sdk.org/v1/mods/legowiifun.stat_display/status_badge?stat=gd_version)
+![Geode Version](https://api.geode-sdk.org/v1/mods/legowiifun.stat_display/status_badge?stat=geode_version)
 Displays various statistics on the UILayer
 
 This mod supports an optional API. To use it, first put in your mod.json 
