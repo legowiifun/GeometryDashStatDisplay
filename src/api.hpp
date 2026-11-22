@@ -3,7 +3,7 @@
  * Include the Geode headers.
  */
 #include <Geode/Geode.hpp>
-#include <Geode/loader/Event.hpp>
+#include <Geode/loader/EventExport.hpp>
 
 /**
   * Brings cocos2d and all Geode namespaces to the current scope.
@@ -16,5 +16,6 @@ using namespace geode::prelude;
 #define MY_MOD_ID "legowiifun.stat_display"
 
 namespace stat_display_api {
-    inline void addStatEvent(std::string start, std::string end, std::string id, int value) GEODE_EVENT_EXPORT_NORES(&addStatEvent, (start, end, id, value));
+    GEODE_EVENT_EXPORT(void,addStatEvent,(std::string start, std::string end, std::string id, int value), (start, end, id, value));
+    //inline void addStatEvent(std::string start, std::string end, std::string id, int value) GEODE_EVENT_EXPORT(&addStatEvent, (start, end, id, value));
 }
